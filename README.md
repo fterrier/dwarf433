@@ -8,6 +8,7 @@ I used to get started:
 https://rayshobby.net/reverse-engineer-wireless-temperature-humidity-rain-sensors-part-1/
 https://rayshobby.net/interface-with-remote-power-sockets-final-version/
 https://rurandom.org/justintime/w/Cheapest_ever_433_Mhz_transceiver_for_PCs
+https://www.laser.com/dhouston/learn.html
 
 ## Sending a signal
 
@@ -54,6 +55,7 @@ signal.setEncoding(encoding);
 To send the signal, call the `sendSignal` function and specify the data PIN of your RF433 transmitter:
 
 ```
+pinMode(RF_DATA_PIN, OUTPUT);
 signal.sendSignal(RF_DATA_PIN);
 ```
 
