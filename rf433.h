@@ -27,9 +27,11 @@
 
 #define RF433_DEBUG 0
 
-class Protocol {
+#include <Arduino.h>
+
+class Encoding {
   public:
-    Protocol();
+    Encoding();
 
     void setZero(int o1, int t1, int o2, int t2);
     void setOne(int o1, int t1, int o2, int t2);
@@ -48,10 +50,10 @@ class Protocol {
 
 class Wave {
   public:
-    Wave(char command[], int len);
+    Wave(String command, int len);
     Wave(unsigned long command, int len);
 
-    void sendWave(int pin, Protocol& protocol);
+    void sendWave(int pin, Encoding& encoding);
 
   private:
     int len;
@@ -64,7 +66,7 @@ class Signal {
     ~Signal();
     void setPulse(Wave wave);
     void setPulse(Wave wave1, int delay, Wave wave2);
-    void setProtocol(Protocol protocol);
+    void setEncoding(Encoding encoding);
     void setRepeatIntervals(int intervals[], int numElements);
 
     void sendSignal(int pin);
@@ -77,12 +79,12 @@ class Signal {
       int *delays;
     };
 
-    void sendPulse(int pin, Protocol& protocol, Pulse& pulse);
+    void sendPulse(int pin, Encoding& encoding, Pulse& pulse);
     void keepDelay(int sync);
 
     int len;
     Pulse pulse;
-    Protocol protocol;
+    Encoding encoding;
     int *delays;
 };
 

@@ -25,40 +25,50 @@
 #include "rf433.h"
 #include "Arduino.h"
 
-Protocol::Protocol() {}
+Encoding::Encoding() {}
 
-void Protocol::setZero(int o1, int t1, int o2, int t2) {
+void Encoding::setZero(int o1, int t1, int o2, int t2) {
   zero[0] = t1;
   zero[1] = t2;
   zseq[0] = o1;
   zseq[1] = o2;
 }
 
-void Protocol::setOne(int o1, int t1, int o2, int t2) {
+void Encoding::setOne(int o1, int t1, int o2, int t2) {
   one[0] = t1;
   one[1] = t2;
   oseq[0] = o1;
   oseq[1] = o2;
 }
 
-int* Protocol::getTimingsZero() {
+int* Encoding::getTimingsZero() {
   return zero;
 }
 
-int* Protocol::getOrderZero() {
+int* Encoding::getOrderZero() {
   return zseq;
 }
 
-int* Protocol::getTimingsOne() {
+int* Encoding::getTimingsOne() {
   return one;
 }
 
-int* Protocol::getOrderOne() {
+int* Encoding::getOrderOne() {
   return oseq;
 }
 
-Wave::Wave(char command[], int len) {
-  // TODO
+Wave::Wave(String s, int len) {
+  command = 0;
+
+  for (int i=0;i<s.length();i++) {
+    int index = s.length()-i-1;
+
+    if (s[index] == '1') {
+      command |= 1UL << i;
+    }
+  }
+
+  len = s.length();
 }
 
 Wave::Wave(unsigned long c, int l) {
@@ -66,12 +76,12 @@ Wave::Wave(unsigned long c, int l) {
   len = l;
 }
 
-void Wave::sendWave(int pin, Protocol& protocol) {
+void Wave::sendWave(int pin, Encoding& encoding) {
   for (int i=1;i<=len;i++) {
     int b = (command >> (len-i)) & 1;
 
-    int *delays = (b ? protocol.getTimingsOne() : protocol.getTimingsZero());
-    int *seq = (b ? protocol.getOrderOne() : protocol.getOrderZero());
+    int *delays = (b ? encoding.getTimingsOne() : encoding.getTimingsZero());
+    int *seq = (b ? encoding.getOrderOne() : encoding.getOrderZero());
 
     digitalWrite(pin, seq[0]);
     delayMicroseconds(delays[0]);
@@ -84,7 +94,7 @@ void Wave::sendWave(int pin, Protocol& protocol) {
 
 Signal::Signal() {
   len = 0;
-  protocol = Protocol();
+  encoding = Encoding();
 }
 
 Signal::~Signal() {
@@ -93,8 +103,8 @@ Signal::~Signal() {
   delete [] pulse.seqs;
 }
 
-void Signal::setProtocol(Protocol p) {
-  protocol = p;
+void Signal::setEncoding(Encoding e) {
+  encoding = e;
 }
 
 void Signal::setPulse(Wave wave) {
@@ -106,7 +116,12 @@ void Signal::setPulse(Wave wave) {
 }
 
 void Signal::setPulse(Wave wave1, int delay, Wave wave2) {
-  // TODO
+  delete [] pulse.delays;
+  delete [] pulse.seqs;
+
+  pulse.len = 2;
+  pulse.delays = new int[1]{delay};
+  pulse.seqs = new Wave[2]{wave1, wave2};
 }
 
 void Signal::setRepeatIntervals(int intervals[], int numElements) {
@@ -117,7 +132,7 @@ void Signal::setRepeatIntervals(int intervals[], int numElements) {
   memcpy(delays, intervals, numElements*sizeof(int));
 }
 
-void Signal::sendPulse(int pin, Protocol& protocol, Pulse& pulse) {
+void Signal::sendPulse(int pin, Encoding& encoding, Pulse& pulse) {
 #if RF433_DEBUG == 1
   Serial.println("Sending pulse");
 #endif
@@ -125,7 +140,7 @@ void Signal::sendPulse(int pin, Protocol& protocol, Pulse& pulse) {
   for (int i=0;i<pulse.len;i++) {
     int d = (i == pulse.len-1) ? 0 : pulse.delays[i];
 
-    pulse.seqs[i].sendWave(pin, protocol);
+    pulse.seqs[i].sendWave(pin, encoding);
     delayMicroseconds(d);
   }
 }
@@ -138,7 +153,7 @@ void Signal::sendSignal(int pin) {
   for (int i=0;i<len;i++) {
     int sync = (i == len-1) ? 0 : delays[i];
 
-    sendPulse(pin, protocol, pulse);
+    sendPulse(pin, encoding, pulse);
 
 #if RF433_DEBUG == 1
     Serial.print("Waiting ms ");

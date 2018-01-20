@@ -44,17 +44,17 @@ void setup() {
 
   pinMode(RF_DATA_PIN, OUTPUT);
 
-  Protocol protocol;
-  protocol.setZero(HIGH, 200, LOW, 450);
-  protocol.setOne(HIGH, 500, LOW, 150);
+  Encoding encoding;
+  encoding.setZero(HIGH, 200, LOW, 450);
+  encoding.setOne(HIGH, 500, LOW, 150);
 
   int repeatIntervals[19] = {25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25};
   offSignal.setRepeatIntervals(repeatIntervals, 19);
-  offSignal.setProtocol(protocol);
+  offSignal.setEncoding(encoding);
   offSignal.setPulse(Wave(0b1000111001011101000000100, 25));
 
   onSignal.setRepeatIntervals(repeatIntervals, 19);
-  onSignal.setProtocol(protocol);
+  onSignal.setEncoding(encoding);
   onSignal.setPulse(Wave(0b1000111001011101000010100, 25));
 }
 
