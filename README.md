@@ -9,7 +9,7 @@ https://rayshobby.net/reverse-engineer-wireless-temperature-humidity-rain-sensor
 https://rayshobby.net/interface-with-remote-power-sockets-final-version/
 https://rurandom.org/justintime/w/Cheapest_ever_433_Mhz_transceiver_for_PCs
 
-## Sending a signal
+## Sending a signal
 
 This library assumes a RF433 signal is a repetition of a pulse, which is formed of one or more waves. For example, the
 power plugs mentioned in [power.ino](https://github.com/fterrier/dwarf433/blob/master/examples/power/power.ino) react to
