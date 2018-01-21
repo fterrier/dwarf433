@@ -50,10 +50,12 @@ class Encoding {
 
 class Wave {
   public:
-    Wave(String command, int len);
+    Wave();
+    Wave(String command);
     Wave(unsigned long command, int len);
 
     void sendWave(int pin, Encoding& encoding);
+    String toString();
 
   private:
     int len;
@@ -66,8 +68,9 @@ class Signal {
     ~Signal();
     void setPulse(Wave wave);
     void setPulse(Wave wave1, int delay, Wave wave2);
+    void setPulse(Wave waves[], int delays[], int numWaves);
     void setEncoding(Encoding encoding);
-    void setRepeatIntervals(int intervals[], int numElements);
+    void setRepeatIntervals(int intervals[], int numIntervals);
 
     void sendSignal(int pin);
 
@@ -79,7 +82,7 @@ class Signal {
       int *delays;
     };
 
-    void sendPulse(int pin, Encoding& encoding, Pulse& pulse);
+    void sendPulse(int pin, Pulse& pulse);
     void keepDelay(int sync);
 
     int len;
