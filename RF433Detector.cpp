@@ -39,7 +39,9 @@ Detector::Detector(int bs, int p, int f, int t) {
 }
 
 Detector::~Detector() {
-  // TODO clean up
+  delete stream;
+  delete [] detectorTimings;
+  delete [] currentIndexes;
 }
 
 void Detector::start(void (*callback)(void)) {
