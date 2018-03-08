@@ -22,7 +22,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "rf433.h"
+#include "RF433.h"
 #include "Arduino.h"
 
 Encoding::Encoding() {}

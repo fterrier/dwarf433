@@ -27,14 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <RF433.h>
+#include <RF433Detector.h>
 
-#define RF_DATA_PIN 12 // RF433 transmitter plugged on pin 12
+#define RF_DATA_PIN 2 // RF433 receiver plugged on pin 2
 
-Signal offSignal;
-Signal onSignal;
-
-bool activate = false;
+Detector detector(160, RF_DATA_PIN, 350, 2200);
 
 void setup() {
   Serial.begin(38400);
@@ -42,31 +39,23 @@ void setup() {
     // wait serial port initialization
   }
 
-  pinMode(RF_DATA_PIN, OUTPUT);
+  int sig1[46] = {1000,1500,500,500,500,500,500,500,1000,500,500,1000,1000,1000,1000,500,500,500,500,1000,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,1000,1000,500,500,500,500,1000,1000,500,500};
+  int sig2[44] = {1000,1500,500,500,500,500,500,500,1000,500,500,1000,1000,1000,1000,500,500,500,500,1000,500,500,500,500,500,500,1000,1000,500,500,500,500,500,500,500,500,1000,1000,500,500,1000,1000,500,500};
 
-  Encoding encoding;
-  encoding.setZero(HIGH, 200, LOW, 450);
-  encoding.setOne(HIGH, 500, LOW, 150);
-
-  int repeatIntervals[19] = {25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25};
-  offSignal.setRepeatIntervals(repeatIntervals, 19);
-  offSignal.setEncoding(encoding);
-  offSignal.setPulse(Wave(0b1000111001011101000000100, 25));
-
-  onSignal.setRepeatIntervals(repeatIntervals, 19);
-  onSignal.setEncoding(encoding);
-  onSignal.setPulse(Wave(0b1000111001011101000010100, 25));
+  detector.addDetection(sig1, 46, 0.3);
+  detector.addDetection(sig2, 44, 0.3);
+  detector.start([]{detector.handleInterrupt();});
 }
 
 void loop() {
-  if (activate == true) {
-    onSignal.sendSignal(RF_DATA_PIN);
-  }
-  else {
-    offSignal.sendSignal(RF_DATA_PIN);
+  bool detected[2] = {false, false};
+  detector.checkDetected(detected);
+
+  if (detected[0]) {
+    Serial.println("Signal off detected");
   }
 
-  activate = !activate;
-
-  delay(5000);
+  if (detected[1]) {
+    Serial.println("Signal on detected");
+  }
 }
