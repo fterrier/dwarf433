@@ -40,8 +40,8 @@ class Iterator {
 
     bool atHead();
 
-    void reset(Elem *elem);
-    bool atElem(Elem *elem);
+    void reset(volatile Elem *elem);
+    bool atElem(volatile Elem *elem);
 
   private:
     volatile Elem *elem;

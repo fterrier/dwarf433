@@ -49,9 +49,9 @@ List::~List() {
   delete [] iterators;
   iterators = new Iterator*[0];
 
-  Elem *r = head;
+  volatile Elem *r = head;
   while (r != NULL) {
-    Elem *n = r->next;
+    volatile Elem *n = r->next;
     delete r;
     r = n;
   }
@@ -59,7 +59,7 @@ List::~List() {
 }
 
 void List::shrink() {
-  Elem *r = head->next;
+  volatile Elem *r = head->next;
 
   for (int i=0;i<iteratorSize;i++) {
     Iterator *it = iterators[i];
@@ -129,12 +129,12 @@ bool Iterator::atHead() {
   return head;
 }
 
-void Iterator::reset(Elem *e) {
+void Iterator::reset(volatile Elem *e) {
   head = true;
   elem = e;
 }
 
-bool Iterator::atElem(Elem *e) {
+bool Iterator::atElem(volatile Elem *e) {
   return elem == e;
 }
 

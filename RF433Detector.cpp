@@ -32,7 +32,7 @@ Detector::Detector(int bs, int p) {
   pin = p;
   dtSize = 0;
   detectorTimings = new DetectorTiming[0];
-  currentIndexes = new int[0];
+  currentIndexes = new unsigned int[0];
 }
 
 Detector::~Detector() {
@@ -48,7 +48,7 @@ void Detector::reset() {
   delete [] detectorTimings;
   delete [] currentIndexes;
   detectorTimings = new DetectorTiming[0];
-  currentIndexes = new int[0];
+  currentIndexes = new unsigned int[0];
 }
 
 void Detector::start(void (*callback)(void)) {
@@ -77,10 +77,10 @@ static unsigned int maximum(unsigned int *timings, unsigned int size) {
 
 void Detector::addDetection(unsigned int *timings, unsigned int size, float tolerance) {
   DetectorTiming* dt = new DetectorTiming[dtSize+1];
-  int* c = new int[dtSize+1];
+  unsigned int* c = new unsigned int[dtSize+1];
 
   memcpy(dt, detectorTimings, dtSize*sizeof(DetectorTiming));
-  memcpy(c, currentIndexes, dtSize*sizeof(int));
+  memcpy(c, currentIndexes, dtSize*sizeof(unsigned int));
 
   delete [] detectorTimings;
   delete [] currentIndexes;
@@ -88,8 +88,8 @@ void Detector::addDetection(unsigned int *timings, unsigned int size, float tole
   detectorTimings = dt;
   currentIndexes = c;
 
-  int* t = new int[size];
-  memcpy(t, timings, size*sizeof(int));
+  unsigned int* t = new unsigned int[size];
+  memcpy(t, timings, size*sizeof(unsigned int));
 
   unsigned int mn = minimum(timings, size);
   unsigned int mx = maximum(timings, size);
@@ -119,7 +119,7 @@ void Detector::checkDetected(bool *detected) {
     for (int i=0;i<dtSize;i++) {
       unsigned int c = currentIndexes[i];
       DetectorTiming dt = detectorTimings[i];
-      int *sig = dt.timings;
+      unsigned int *sig = dt.timings;
 
       if (c < dt.size) {
         int mn = sig[c] - sig[c]*dt.tolerance;
