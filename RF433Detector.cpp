@@ -26,13 +26,10 @@
 #include "list.h"
 #include <Arduino.h>
 
-Detector::Detector(int bs, int p, int f, int t) {
+Detector::Detector(int bs, int p) {
   stream = new List(bs);
   iterator = stream->iterator();
-  started = false;
   pin = p;
-  from = f;
-  to = t;
   dtSize = 0;
   detectorTimings = new DetectorTiming[0];
   currentIndexes = new int[0];
@@ -44,8 +41,38 @@ Detector::~Detector() {
   delete [] currentIndexes;
 }
 
+void Detector::reset() {
+  from = 0;
+  to = 0;
+  dtSize = 0;
+  delete [] detectorTimings;
+  delete [] currentIndexes;
+  detectorTimings = new DetectorTiming[0];
+  currentIndexes = new int[0];
+}
+
 void Detector::start(void (*callback)(void)) {
   attachInterrupt(digitalPinToInterrupt(pin), callback, CHANGE);
+}
+
+static unsigned int minimum(unsigned int *timings, unsigned int size) {
+  unsigned int min = 0-1;
+  for (int i=0;i<size;i++) {
+    if (timings[i] < min) {
+      min = timings[i];
+    }
+  }
+  return min;
+}
+
+static unsigned int maximum(unsigned int *timings, unsigned int size) {
+  unsigned int max = 0-1;
+  for (int i=0;i<size;i++) {
+    if (timings[i] > max) {
+      max = timings[i];
+    }
+  }
+  return max;
 }
 
 void Detector::addDetection(unsigned int *timings, unsigned int size, float tolerance) {
@@ -63,6 +90,16 @@ void Detector::addDetection(unsigned int *timings, unsigned int size, float tole
 
   int* t = new int[size];
   memcpy(t, timings, size*sizeof(int));
+
+  unsigned int mn = minimum(timings, size);
+  unsigned int mx = maximum(timings, size);
+
+  if (mn - mn*tolerance < from) {
+    from = mn - mn*tolerance;
+  }
+  if (mx + mx*tolerance > to) {
+    to = mx + mx*tolerance;
+  }
 
   dt[dtSize] = DetectorTiming{t, size, tolerance};
   c[dtSize] = 0;

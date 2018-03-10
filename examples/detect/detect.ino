@@ -31,7 +31,7 @@
 
 #define RF_DATA_PIN 2 // RF433 receiver plugged on pin 2
 
-Detector detector(160, RF_DATA_PIN, 350, 2200);
+Detector detector(160, RF_DATA_PIN);
 
 void setup() {
   Serial.begin(38400);

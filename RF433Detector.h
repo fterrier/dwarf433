@@ -27,18 +27,13 @@
 
 #include "List.h"
 
-struct DetectorTiming {
-  unsigned int *timings;
-  unsigned int size;
-  float tolerance;
-};
-
 class Detector {
   public:
-    Detector(int bufferSize, int pin, int from, int to);
+    Detector(int bufferSize, int pin);
     ~Detector();
 
     void addDetection(unsigned int *timings, unsigned int size, float tolerance);
+    void reset();
 
     void start(void (*callback)(void));
     void handleInterrupt();
@@ -46,8 +41,13 @@ class Detector {
     void checkDetected(bool *detected);
 
   private:
+    struct DetectorTiming {
+      unsigned int *timings;
+      unsigned int size;
+      float tolerance;
+    };
+
     int pin, from, to;
-    bool started;
     volatile unsigned long last;
 
     List* stream;
