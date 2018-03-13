@@ -31,6 +31,8 @@ Detector::Detector(int bs, int p) {
   iterator = stream->iterator();
   pin = p;
   dtSize = 0;
+  from = 0;
+  to = 0;
   detectorTimings = new DetectorTiming[0];
   currentIndexes = new unsigned int[0];
 }
@@ -66,7 +68,7 @@ static unsigned int minimum(unsigned int *timings, unsigned int size) {
 }
 
 static unsigned int maximum(unsigned int *timings, unsigned int size) {
-  unsigned int max = 0-1;
+  unsigned int max = 0;
   for (int i=0;i<size;i++) {
     if (timings[i] > max) {
       max = timings[i];
@@ -94,10 +96,10 @@ void Detector::addDetection(unsigned int *timings, unsigned int size, float tole
   unsigned int mn = minimum(timings, size);
   unsigned int mx = maximum(timings, size);
 
-  if (mn - mn*tolerance < from) {
+  if (from == 0 || mn - mn*tolerance < from) {
     from = mn - mn*tolerance;
   }
-  if (mx + mx*tolerance > to) {
+  if (to == 0 || mx + mx*tolerance > to) {
     to = mx + mx*tolerance;
   }
 
@@ -107,11 +109,7 @@ void Detector::addDetection(unsigned int *timings, unsigned int size, float tole
 }
 
 void Detector::checkDetected(bool *detected) {
-  if (iterator->atHead()) {
-    for (int i=0;i<dtSize;i++) {
-      currentIndexes[i] = 0;
-    }
-  }
+  int loops = 100;
 
   while (iterator->hasNext()) {
     int v = iterator->next();
@@ -128,7 +126,14 @@ void Detector::checkDetected(bool *detected) {
         if (v < mx && v > mn) {
           currentIndexes[i] = c + 1;
         } else {
-          currentIndexes[i] = 0;
+          mn = sig[0] - sig[0]*dt.tolerance;
+          mx = sig[0] + sig[0]*dt.tolerance;
+
+          if (v < mx && v > mn) {
+              currentIndexes[i] = 1;
+          } else {
+            currentIndexes[i] = 0;
+          }
         }
       }
       else {
@@ -136,10 +141,22 @@ void Detector::checkDetected(bool *detected) {
         currentIndexes[i] = 0;
       }
     }
+
+    delay(0);
+
+    if (iterator->atHead()) {
+      Serial.println("reset");
+
+      for (int i=0;i<dtSize;i++) {
+        currentIndexes[i] = 0;
+      }
+    }
+
+    loops--;
   }
 }
 
-void Detector::handleInterrupt() {
+void ICACHE_RAM_ATTR Detector::handleInterrupt() {
   volatile unsigned long now = micros();
   volatile unsigned int gap = now - last;
 

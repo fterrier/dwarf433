@@ -26,14 +26,14 @@
 #define List_h
 
 struct Elem {
-  int value;
+  volatile int value;
   volatile Elem* next;
 };
 
 class Iterator {
   public:
     Iterator ();
-    Iterator (Elem *elem);
+    Iterator (volatile Elem *elem);
 
     bool hasNext();
     int next();
@@ -60,8 +60,8 @@ class List {
     int len();
 
   private:
-    Elem *head;
-    Elem *curr;
+    volatile Elem *head;
+    volatile Elem *curr;
 
     Iterator **iterators;
     int iteratorSize;

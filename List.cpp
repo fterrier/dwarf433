@@ -75,7 +75,7 @@ void List::shrink() {
 }
 
 bool List::addInt(int value) {
-  Elem *elem = new Elem;
+  volatile Elem *elem = new Elem;
   if (elem == NULL) {
     shrink();
     return false;
@@ -120,7 +120,7 @@ Iterator::Iterator() {
   head = false;
 }
 
-Iterator::Iterator(Elem *e) {
+Iterator::Iterator(volatile Elem *e) {
   elem = e;
   head = true;
 }
