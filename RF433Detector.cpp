@@ -23,7 +23,7 @@
 */
 
 #include "RF433Detector.h"
-#include "list.h"
+#include "List.h"
 #include <Arduino.h>
 
 Detector::Detector(int bs, int p) {
